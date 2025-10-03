@@ -1,47 +1,181 @@
-# Comparador de documentos Word (.docx)
+📄 Comparador de Documentos Word
 
-Este proyecto contiene un script en Python que permite **comparar múltiples documentos Word** y calcular su **similitud** usando distintos enfoques, desde métodos clásicos hasta modelos semánticos modernos.  
+Este proyecto permite comparar varios documentos Word (.docx) para detectar similitudes entre ellos.
+Se utiliza tanto la coincidencia literal como métodos estadísticos, probabilísticos y semánticos, lo que lo convierte en una herramienta útil para:
 
-El resultado se guarda en un archivo Excel (`resultados_similitud.xlsx`) con una hoja por método y un ranking de pares de documentos más similares.
+🔎 Detección de plagio o paráfrasis
 
----
+📑 Control de versiones de informes
 
-## 🚀 Funcionalidad
+🧪 Investigación académica y empresarial
 
-El script lee todos los `.docx` en una carpeta y genera:
+🛡 Auditoría de documentación en consultoría
 
-1. **Literal (Levenshtein):** compara los textos carácter a carácter (útil para copias exactas).  
-2. **Conjuntos (Jaccard):** compara las palabras comunes entre documentos.  
-3. **Vectorial (TF-IDF + coseno):** analiza la frecuencia relativa de las palabras.  
-4. **Probabilístico (LDA):** representa cada documento como una mezcla de *temas* y compara las distribuciones.  
-5. **Semántico (SBERT + coseno):** usa embeddings de `Sentence-BERT` para detectar similitud de significado, incluso con paráfrasis.  
+Incluye una interfaz gráfica (GUI) para facilitar la selección de carpetas y la ejecución del análisis, así como un script CLI para ejecución directa en terminal.
 
-El Excel generado incluye:  
-- Una hoja con la **matriz de similitud** para cada método (valores en %).  
-- Una hoja con el **TOP N pares de documentos más similares** por cada método.  
-- Una hoja **INFO** con parámetros de ejecución y lista de documentos analizados.
+⚙️ Algoritmos implementados
 
----
+El comparador aplica cinco enfoques distintos:
 
-## 📂 Estructura de salida
+Literal – Distancia de Levenshtein (RapidFuzz)
 
-Ejemplo de hojas en el Excel:
+Compara cadenas carácter por carácter.
 
-- `1_Literal_Levenshtein`  
-- `2_Conjuntos_Jaccard`  
-- `3_Vectorial_TFIDF`  
-- `4_Probabilistico_LDA`  
-- `5_Semantico_SBERT`  
-- `TOP_Literal`, `TOP_Conjuntos`, `TOP_Vectorial`, `TOP_Probabilistico`, `TOP_Semantico`  
-- `INFO`
+Útil para detectar copias exactas o mínimas ediciones.
 
----
+Conjuntos – Jaccard
 
-## 🛠️ Requisitos
+Compara conjuntos de palabras compartidas entre documentos.
 
-- Python **3.9+** (compatible con 3.13)  
-- Librerías necesarias:  
+Detecta si dos textos usan un vocabulario similar.
 
-```bash
-pip install python-docx unidecode pandas numpy scikit-learn rapidfuzz \
-            sentence-transformers nltk openpyxl
+Vectorial – TF-IDF + Coseno (Scikit-Learn)
+
+Representa los documentos como vectores según la frecuencia de las palabras.
+
+Permite medir similitudes estadísticas incluso con redacción diferente.
+
+Probabilístico – LDA (Latent Dirichlet Allocation)
+
+Descubre temas ocultos en los documentos.
+
+Cada documento se representa como una mezcla de temas.
+
+Útil para comparar documentos a nivel conceptual, aunque no compartan palabras.
+⚠ Nota: es no determinista, los resultados pueden variar si no se fija random_state.
+
+Semántico – SBERT (Sentence-BERT)
+
+Convierte los documentos en embeddings (vectores de significado) mediante modelos de deep learning.
+
+Detecta paráfrasis y similitud semántica aunque las frases estén redactadas de forma distinta.
+
+Modelos incluidos:
+
+paraphrase-MiniLM-L6-v2 (rápido, por defecto)
+
+all-MiniLM-L12-v2
+
+all-mpnet-base-v2 (más preciso, más pesado)
+
+🖥️ Interfaz gráfica (GUI)
+
+La GUI permite:
+
+Seleccionar la carpeta de documentos .docx.
+
+Incluir/excluir subcarpetas.
+
+Elegir el nombre del Excel de salida.
+
+Seleccionar el modelo SBERT.
+
+Definir número de temas LDA (auto o manual).
+
+Ajustar cuántos pares mostrar en los rankings.
+
+Ver en la propia ventana los mensajes del proceso en tiempo real.
+
+Exportar resultados a Excel.
+
+Cada control tiene tooltip de ayuda al pasar el ratón.
+
+📊 Resultados
+
+El programa genera un archivo Excel con:
+
+Matriz de similitud de cada método (1_Literal, 2_Conjuntos, 3_Vectorial, 4_Probabilistico, 5_Semantico).
+
+Hojas con los TOP K pares de documentos más similares por método (TOP_*).
+
+Los valores de similitud se expresan en porcentaje (0–100%).
+
+🚀 Instalación
+
+Clonar el repositorio o copiar los scripts.
+
+Crear un entorno virtual (opcional pero recomendado):
+
+python -m venv .venv
+source .venv/bin/activate   # Linux/Mac
+.venv\Scripts\activate      # Windows
+
+
+Instalar dependencias:
+
+pip install -r requirements.txt
+
+Dependencias principales
+
+python-docx → lectura de Word
+
+unidecode, nltk → normalización de texto
+
+rapidfuzz → distancia de Levenshtein
+
+scikit-learn → TF-IDF, LDA
+
+pandas, openpyxl → exportar resultados a Excel
+
+sentence-transformers → embeddings SBERT
+
+gensim → soporte extra para modelos de tópicos
+
+🏃 Uso por consola
+
+Ejecutar el comparador directamente:
+
+python comparadorv2.py "C:\ruta\a\carpeta\docs" --recursivo --salida resultados.xlsx --modelo paraphrase-MiniLM-L6-v2 --lda_topics auto --topk 50
+
+
+Parámetros:
+
+--recursivo → incluir subcarpetas
+
+--salida → nombre del Excel
+
+--modelo → modelo SBERT (MiniLM, mpnet, etc.)
+
+--lda_topics → nº de temas (auto o entero)
+
+--topk → nº de pares más similares por ranking
+
+🖥️ Uso con interfaz gráfica
+python gui_comparador.py
+
+
+Desde la GUI puedes configurar todas las opciones y ejecutar el análisis con un clic.
+
+📦 Generar ejecutable
+
+Se recomienda usar PyInstaller para distribuir la aplicación sin necesidad de instalar Python:
+
+Empaquetar el motor CLI:
+
+pyinstaller --console --name comparador_cli --collect-all sentence_transformers comparadorv2.py
+
+
+Empaquetar la GUI:
+
+pyinstaller --windowed --name ComparadorGUI --add-data "%APPDATA%\nltk_data;nltk_data" gui_comparador.py
+
+
+Entregar ambos EXE en una misma carpeta.
+
+⚠️ Limitaciones conocidas
+
+El método LDA es aproximado y no determinista si no se fija semilla (random_state).
+
+El modelo SBERT puede tardar la primera vez porque descarga embeddings desde HuggingFace.
+
+Archivos .docx muy grandes pueden ralentizar el cálculo.
+
+📚 Referencias
+
+Sentence-Transformers
+
+Scikit-Learn – Text Feature Extraction
+
+Gensim – Topic Modeling with LDA
+
+NLTK Stopwords
