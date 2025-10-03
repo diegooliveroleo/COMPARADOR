@@ -6,7 +6,7 @@ import queue
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
-APP_TITLE = "Comparador .docx – GUI"
+APP_TITLE = "Comparador de documentos Word – GUI By:Olivero"
 DEFAULT_MODEL = "paraphrase-MiniLM-L6-v2"
 # --- Tooltip simple para Tkinter/ttk ---
 class Tooltip:
