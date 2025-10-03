@@ -122,22 +122,6 @@ Desde la GUI puedes configurar todas las opciones y ejecutar el análisis con un
 
 ---
 
-## 📦 Generar ejecutable
-
-Se recomienda usar **PyInstaller** para distribuir la aplicación sin necesidad de instalar Python:
-
-1. Empaquetar el motor CLI:  
-   ```powershell
-   pyinstaller --console --name comparador_cli --collect-all sentence_transformers comparadorv2.py
-   ```
-2. Empaquetar la GUI:  
-   ```powershell
-   pyinstaller --windowed --name ComparadorGUI --add-data "%APPDATA%\nltk_data;nltk_data" gui_comparador.py
-   ```
-3. Entregar ambos EXE en una misma carpeta.
-
----
-
 ## ⚠️ Limitaciones conocidas
 - El método LDA es **aproximado y no determinista** si no se fija semilla (`random_state`).  
 - El modelo SBERT puede tardar la primera vez porque descarga embeddings desde HuggingFace.  
