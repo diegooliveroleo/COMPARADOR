@@ -269,7 +269,7 @@ class App(tk.Tk):
         lbl_script = ttk.Label(frm, text="Script a ejecutar:")
         lbl_script.grid(row=row, column=0, sticky="w")
 
-        self.var_script = tk.StringVar(value="comparadorv2.py")
+        self.var_script = tk.StringVar(value="comparador.py")
         ent_script = ttk.Entry(frm, textvariable=self.var_script, width=80)
         ent_script.grid(row=row, column=1, sticky="we", padx=5)
 
