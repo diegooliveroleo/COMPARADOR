@@ -1,3 +1,11 @@
+# --- forzar UTF-8 en stdout/err del proceso hijo ---
+import sys
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass  # para compatibilidad si no existe reconfigure (versiones muy antiguas)
+
 import argparse
 import re
 import sys
@@ -143,27 +151,23 @@ def similarity_tfidf(texts: List[str], sw_list: List[str]) -> np.ndarray:
 # 4) Probabilístico: LDA + coseno
 # ----------------------------
 def lda_topic_distributions_sklearn(texts, sw_list, num_topics=None, max_features=5000):
-    """
-    LDA con scikit-learn:
-    - Vectoriza con CountVectorizer (el LDA de sklearn espera conteos).
-    - Devuelve matriz d x K con la distribución de temas por documento.
-    """
-    # Normaliza suavemente (sin quitar tildes aquí no pasa nada)
     cleaned = [re.sub(r"\s+", " ", t.lower()).strip() for t in texts]
-    # Vector de conteos (quitando stopwords en español)
-    vect = CountVectorizer(stop_words=sw_list, token_pattern=r"\b\w+\b",
-                           min_df=2, max_df=0.8, max_features=max_features)
+    # Ajuste: permitir palabras que aparezcan al menos en 1 documento y en hasta el 100% de documentos
+    vect = CountVectorizer(
+        stop_words=sw_list,
+        token_pattern=r"\b\w+\b",
+        min_df=1,          # antes estaba en 2
+        max_df=1.0,        # antes estaba en 0.8
+        max_features=max_features
+    )
     X = vect.fit_transform(cleaned)
 
-    # Si el vocabulario queda vacío (pocos docs), hacemos un fallback
     if X.shape[1] == 0:
         K = max(2, min(5, len(texts)))
         return np.full((len(texts), K), 1.0 / K)
 
-    # Elegir K (temas)
     if num_topics is None:
-        # heurística simple: entre 5 y 20 según tamaño de vocabulario
-        K = max(5, min(20, X.shape[1] // 200 or 5))
+        K = max(2, min(10, X.shape[1]))  # heurística más simple
     else:
         K = max(2, num_topics)
 
@@ -174,7 +178,7 @@ def lda_topic_distributions_sklearn(texts, sw_list, num_topics=None, max_feature
         max_iter=20,
         n_jobs=-1,
     )
-    doc_topic = lda.fit_transform(X)           # d x K, filas normalizadas a 1
+    doc_topic = lda.fit_transform(X)
     return doc_topic
 
 
