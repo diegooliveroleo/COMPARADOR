@@ -1,95 +1,47 @@
-Informe técnico
+# Comparador de documentos Word (.docx)
 
-Script de comparación de similitud entre documentos Word (.docx)
+Este proyecto contiene un script en Python que permite **comparar múltiples documentos Word** y calcular su **similitud** usando distintos enfoques, desde métodos clásicos hasta modelos semánticos modernos.  
 
-1. Objetivo del script
+El resultado se guarda en un archivo Excel (`resultados_similitud.xlsx`) con una hoja por método y un ranking de pares de documentos más similares.
 
-El script permite comparar múltiples documentos Word y calcular un porcentaje de similitud entre ellos mediante dos enfoques complementarios:
+---
 
-Similitud TF-IDF (coseno): mide coincidencia literal de vocabulario y expresiones frecuentes.
+## 🚀 Funcionalidad
 
-Similitud semántica (embeddings SBERT): mide cercanía en significado, incluso si se usan palabras distintas (detección de paráfrasis).
+El script lee todos los `.docx` en una carpeta y genera:
 
-De esta manera, el analista puede identificar documentos duplicados, parcialmente copiados o reformulados, útil para detección de plagio, control de calidad documental o auditoría de informes.
+1. **Literal (Levenshtein):** compara los textos carácter a carácter (útil para copias exactas).  
+2. **Conjuntos (Jaccard):** compara las palabras comunes entre documentos.  
+3. **Vectorial (TF-IDF + coseno):** analiza la frecuencia relativa de las palabras.  
+4. **Probabilístico (LDA):** representa cada documento como una mezcla de *temas* y compara las distribuciones.  
+5. **Semántico (SBERT + coseno):** usa embeddings de `Sentence-BERT` para detectar similitud de significado, incluso con paráfrasis.  
 
-2. Funcionamiento del script
-a) Carga y normalización
+El Excel generado incluye:  
+- Una hoja con la **matriz de similitud** para cada método (valores en %).  
+- Una hoja con el **TOP N pares de documentos más similares** por cada método.  
+- Una hoja **INFO** con parámetros de ejecución y lista de documentos analizados.
 
-Se leen todos los archivos .docx en la carpeta indicada.
+---
 
-Se extrae el texto de párrafos y tablas.
+## 📂 Estructura de salida
 
-El texto se normaliza:
+Ejemplo de hojas en el Excel:
 
-Minúsculas.
+- `1_Literal_Levenshtein`  
+- `2_Conjuntos_Jaccard`  
+- `3_Vectorial_TFIDF`  
+- `4_Probabilistico_LDA`  
+- `5_Semantico_SBERT`  
+- `TOP_Literal`, `TOP_Conjuntos`, `TOP_Vectorial`, `TOP_Probabilistico`, `TOP_Semantico`  
+- `INFO`
 
-Eliminación de acentos/diacríticos.
+---
 
-Compactación de espacios.
+## 🛠️ Requisitos
 
-b) Similitud TF-IDF
+- Python **3.9+** (compatible con 3.13)  
+- Librerías necesarias:  
 
-Se aplica el modelo TF-IDF (Term Frequency – Inverse Document Frequency):
-
-Cada documento se convierte en un vector numérico que refleja la importancia relativa de cada palabra o combinación de palabras (ngrams).
-
-Se calcula la similitud del coseno entre los vectores de dos documentos.
-
-Este método detecta coincidencias literales: cuanto mayor sea el vocabulario en común y su relevancia, mayor será la similitud.
-
-c) Similitud semántica (SBERT)
-
-Se utiliza Sentence-BERT, un modelo de lenguaje preentrenado que convierte cada documento en un embedding (vector de alta dimensión que representa el significado del texto).
-
-Se calcula el coseno entre los embeddings de los documentos.
-
-Este método captura la similitud semántica: dos frases que expresan lo mismo con palabras distintas producen vectores cercanos.
-
-Ejemplo: “El coche azul estaba estacionado” ≈ “El automóvil de color azul se aparcó”.
-
-d) Resultados presentados
-
-Matriz TF-IDF: muestra porcentajes de similitud literal entre todos los pares de documentos.
-
-Matriz semántica: muestra porcentajes de similitud de significado.
-
-Top pares más similares: ranking con los pares de documentos que presentan mayor similitud semántica, para una revisión rápida.
-
-3. Teoría de fondo
-
-TF-IDF
-
-Ventaja: sencillo, rápido y útil para textos que comparten vocabulario exacto.
-
-Limitación: no detecta paráfrasis ni sinónimos, porque depende de palabras exactas.
-
-Embeddings semánticos (SBERT)
-
-Ventaja: entiende el significado del texto, permite detectar reformulaciones.
-
-Limitación: requiere modelos más pesados y entrenamiento previo; el resultado depende de la calidad del modelo.
-
-Similitud del coseno
-
-Métrica común en ambos enfoques.
-
-Mide el ángulo entre dos vectores:
-
-1 (o 100 %) → vectores idénticos → documentos muy similares.
-
-0 → vectores ortogonales → documentos totalmente diferentes.
-
-4. Usos prácticos
-
-Detección de plagio o paráfrasis en informes o trabajos académicos.
-
-Control de versiones: verificar si un documento nuevo es solo una copia parcial de otro.
-
-Análisis de redundancia documental en proyectos de consultoría.
-
-Auditoría de cumplimiento: identificar si varias memorias siguen la misma estructura y redacción.
-
-5. Conclusión
-
-El script combina la potencia de un método clásico (TF-IDF) con técnicas modernas de inteligencia artificial (SBERT), proporcionando un análisis completo de similitud entre documentos.
-Gracias a esta doble perspectiva, es posible detectar tanto copias literales como plagio más sofisticado mediante paráfrasis, ofreciendo al analista una herramienta práctica para comparar documentos en entornos profesionales.
+```bash
+pip install python-docx unidecode pandas numpy scikit-learn rapidfuzz \
+            sentence-transformers nltk openpyxl
